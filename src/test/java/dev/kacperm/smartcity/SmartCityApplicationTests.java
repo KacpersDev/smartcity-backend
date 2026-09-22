@@ -33,9 +33,19 @@ class SmartCityApplicationTests {
     @Test
     void shouldCitizenBeCreated() {
         Citizen testCitizen = new Citizen(null, "test@gmail.com", null, null, null, null, 0);
-        ResponseEntity<String> response = testRestTemplate.postForEntity("/citizen/create", testCitizen, String.class);
+        ResponseEntity<String> response = testRestTemplate.postForEntity("/citizen/auth/register", testCitizen, String.class);
 
-        System.out.println("status " + response.getStatusCode());
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+    }
+
+    @Test
+    void shouldCitizenBeLoggedIn() {
+        Citizen testCitizen = new Citizen(null, "test@gmail.com", null, null, "test@gmail.com", "123456", 0);
+
+        ResponseEntity<String> registerResponse = testRestTemplate.postForEntity("/citizen/auth/register", testCitizen, String.class);
+        ResponseEntity<String> loginResponse = testRestTemplate.postForEntity("/citizen/auth/login", testCitizen, String.class);
+
+        assertThat(registerResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        assertThat(loginResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
     }
 }

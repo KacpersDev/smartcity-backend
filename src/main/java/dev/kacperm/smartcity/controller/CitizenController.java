@@ -28,12 +28,31 @@ public class CitizenController {
         }
     }
 
-    @PostMapping("/create")
-    public ResponseEntity<Citizen> createCitizen(@RequestBody Citizen citizen) {
+    @PostMapping("/auth/register")
+    public ResponseEntity<Citizen> registerCitizen(@RequestBody Citizen citizen) {
+        Optional<Citizen>  optionalCitizen = citizenRepository.findByEmail(citizen.getEmail());
+
+        if (optionalCitizen.isPresent()) {
+            return ResponseEntity.badRequest().body(optionalCitizen.get());
+        }
+
         Citizen createdCitizen = citizenRepository.save(citizen);
         return ResponseEntity.status(HttpStatus.CREATED).body(createdCitizen);
     }
 
     @PostMapping("/auth/login")
-    public ResponseEntity<Citizen> login(@RequestBody Citizen citizen) {}
+    public ResponseEntity<Citizen> loginCitizen(@RequestBody Citizen citizen) {
+        Optional<Citizen> optionalCitizen = citizenRepository.findByEmail(citizen.getEmail());
+
+        if (optionalCitizen.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        // TODO hash passwords
+        if (!citizen.getPassword().equals(optionalCitizen.get().getPassword())) {
+            return ResponseEntity.status(HttpStatus.UNAUTHORIZED).build();
+        }
+
+        return ResponseEntity.ok(optionalCitizen.get());
+    }
 }
